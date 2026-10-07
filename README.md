@@ -23,14 +23,14 @@ state のロックは S3 のロックファイル（`use_lockfile = true`、Terr
 ## 使い方
 
 ```bash
-export AWS_PROFILE=<バケットを作るアカウントのプロファイル>
-
 # 実行内容の確認
-./create-tf-backend.sh -b example-tfstate --dry-run
+./create-tf-backend.sh -b example-tfstate -p management-admin --dry-run
 
 # 作成
-./create-tf-backend.sh -b example-tfstate -k aws-organization/root-ou.tfstate
+./create-tf-backend.sh -b example-tfstate -p management-admin -k aws-organization/root-ou.tfstate
 ```
+
+プロファイルは`-p`の代わりに環境変数`AWS_PROFILE`でも指定できます。
 
 最後に `backend.hcl` の例が出力されるので、各リポジトリの `backend.hcl` に貼り付けて使います。
 
@@ -38,10 +38,24 @@ export AWS_PROFILE=<バケットを作るアカウントのプロファイル>
 terraform init -backend-config=backend.hcl
 ```
 
-オプションの一覧は `./create-tf-backend.sh --help` で確認できます。
+## オプション
+
+| オプション | 内容 | 既定値 |
+|---|---|---|
+| `-b`, `--bucket <name>` | バケット名（必須） | - |
+| `-r`, `--region <region>` | リージョン | `AWS_REGION` → `AWS_DEFAULT_REGION` → `ap-northeast-1` |
+| `-p`, `--profile <profile>` | AWS CLI のプロファイル | `AWS_PROFILE` |
+| `-k`, `--key <key>` | 出力する`backend.hcl`の`key`（state ファイルのパス） | `terraform.tfstate` |
+| `--kms-key-id <id>` | KMS キーで暗号化する | SSE-S3 |
+| `--noncurrent-days <n>` | 古いバージョンの state を残す日数 | `90` |
+| `--tag <key=value>` | バケットに付けるタグ（複数指定可） | `ManagedBy=manual` |
+| `-y`, `--yes` | 確認をせずに実行する | - |
+| `--dry-run` | AWS に変更を加えず、実行する内容だけを表示する | - |
+| `-h`, `--help` | ヘルプを表示する | - |
+
+リージョンは AWS CLI のプロファイルに設定した`region`ではなく、上記の順で決まります。
 
 ## 前提条件
 
 - AWS CLI v2
 - バケットを作るアカウントで、S3 の操作と `sts:GetCallerIdentity` ができる権限
-# terraform-aws-backend-bootstrap
