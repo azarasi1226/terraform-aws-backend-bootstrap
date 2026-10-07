@@ -44,4 +44,3 @@ terraform init -backend-config=backend.hcl
 
 - AWS CLI v2
 - バケットを作るアカウントで、S3 の操作と `sts:GetCallerIdentity` ができる権限
-# terraform-aws-backend-bootstrap
